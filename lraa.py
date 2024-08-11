@@ -20,7 +20,7 @@ b = np.array([
 def vertex_enumeration_2d(A, b, eps=1e-6):
     # Assume Ax <= b
     # Assume the system is feasible and bounded
-    # Return an OrderedDict with keys=vertex coordinates, values=[activate constraints, in increasing radian order (counter-clockwise)]
+    # Return an OrderedDict with keys=vertex coordinates, values=[active constraints, in increasing radian order (counter-clockwise)]
 
     rads = np.arctan2(A[:,1], A[:,0])
     rads[rads<0] = 2*np.pi + rads[rads<0]  # Convert negative radians to positive
