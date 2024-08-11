@@ -122,4 +122,8 @@ def representation_transform_VH(V, eps=1e-6):
     
     return np.array(A).tolist(), np.array(b).tolist()
 
-print(representation_transform_VH(representation_transform_HV(A, b)))
+def standardize(A, b):
+    V_representation = representation_transform_HV(A, b)
+    return representation_transform_VH(V_representation)
+
+print(standardize(A, b))
