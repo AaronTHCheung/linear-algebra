@@ -78,7 +78,10 @@ def representation_transform_HV(A, b):
 def representation_transform_VH(V, eps=1e-6):
     A = []
     b = []
-    for v1, v2 in zip(V, np.vstack([V[1:], V[0]])):
+    for v1, v2 in zip(
+        np.vstack([V[-1], V[:-1]]),  # such that the normal of the first line segment will be either horizontal (towards strict right) or pointing upwards
+        V
+    ):
         v12 = np.array(v2) - np.array(v1)
 
         if abs(v12[0]) <= eps:
@@ -98,7 +101,7 @@ def representation_transform_VH(V, eps=1e-6):
         b_i = a.dot(v1)
 
         if len(A) == 0:
-            # The normal of the first line segment will be either horizontal or pointing upwards
+            # The normal of the first line segment will be either horizontal (towards strict right) or pointing upwards
             if a[1] < 0:
                 a *= -1
                 b_i *= -1
