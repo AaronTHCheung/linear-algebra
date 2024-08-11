@@ -1,5 +1,7 @@
 import numpy as np
 from collections import OrderedDict
+import matplotlib.pyplot as plt
+from matplotlib import colormaps
 
 A = np.array([
     [0, -1],
@@ -126,4 +128,47 @@ def standardize(A, b):
     V_representation = representation_transform_HV(A, b)
     return representation_transform_VH(V_representation)
 
+def plot_polygon(A, b, constraints=False, linspace_num=100):
+    V = representation_transform_HV(A, b)
+    V = np.array(V)
+    bbox = np.array([  # TODO: change this to dynamic
+        [0, 1],
+        [0, 1]
+    ])
+
+    x_range, y_range = np.ptp(bbox, axis=1)
+    x = np.linspace(bbox[0][0] - x_range*0.1, 
+                    bbox[0][1] + x_range*0.1, 
+                    linspace_num)
+
+
+    plt.figure(figsize=(3,3))
+    plt.fill(V[:,0], V[:,1], '0.8')
+
+    if constraints:
+        cmap = colormaps['tab10']
+        n = 0
+        for a, b_i in zip(A, b):
+            plot_kwargs = {
+                'color': cmap.colors[n % 10],
+                'label': f'{a[0]}x+{a[1]}y={b_i}'
+            }
+            if a[0] == 0:  # vertical line
+                plt.axvline(x=b_i/a[1], **plot_kwargs)
+            elif a[1] == 0:  # horizontal line
+                plt.axhline(y=b_i/a[0], **plot_kwargs)
+            else:
+                constraint_y = (b_i - a[0] * x) / a[1]
+                plt.plot(x, constraint_y, **plot_kwargs)
+            n+=1
+        plt.legend()
+    plt.axis('equal')
+    ax = plt.gca()
+    ax.set_xlim(bbox[0][0]-x_range*0.1, bbox[0][1]+x_range*0.1)
+    ax.set_ylim(bbox[0][0]-y_range*0.1, bbox[0][1]+y_range*0.1)
+    plt.show()
+
+
 print(standardize(A, b))
+
+plot_polygon(A, b, constraints=True)
