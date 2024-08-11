@@ -72,4 +72,51 @@ def vertex_enumeration_2d(A, b, eps=1e-6):
     
     return V2active_constraints
 
-vertex_enumeration_2d(A, b)
+def representation_transform_HV(A, b):
+    return list(vertex_enumeration_2d(A, b).keys())
+
+def representation_transform_VH(V, eps=1e-6):
+    A = []
+    b = []
+    for v1, v2 in zip(V, np.vstack([V[1:], V[0]])):
+        v12 = np.array(v2) - np.array(v1)
+
+        if abs(v12[0]) <= eps:
+            # v12 is a vertical line
+            a = np.array([1, 0])
+        elif abs(v12[1]) <= eps:
+            # v12 is a horizontal line
+            a = np.array([0, 1])
+        else:
+            a2 = 1  # With only the line segment, we have degree of freedom = 1. Fixing one coordinate 'consumes' that
+            # Orthogonality: v12[0] * a1 + v12[1] * a2 = 0
+            a1 = -v12[1] * a2 / v12[0]
+
+            a = np.array([a1, a2])
+            a = a / np.linalg.norm(a)
+
+        b_i = a.dot(v1)
+
+        if len(A) == 0:
+            # The normal of the first line segment will be either horizontal or pointing upwards
+            if a[1] < 0:
+                a *= -1
+                b_i *= -1
+
+        else:
+            last_a = A[-1]
+            
+            # By convexity, cross product last_a × a must be pointing towards the reader
+            if np.cross(
+                np.hstack([last_a, 0]), 
+                np.hstack([a, 0])
+            )[2] < 0:
+                a *= -1
+                b_i *= -1
+
+        A.append(a)
+        b.append(b_i)
+    
+    return np.array(A).tolist(), np.array(b).tolist()
+
+print(representation_transform_VH(representation_transform_HV(A, b)))
